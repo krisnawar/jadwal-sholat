@@ -152,7 +152,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const todayDataObj = data.find(item => item.date.gregorian.day === targetDay);
 
             // Render Header Basics
-            headerCity.textContent = `Jadwal Sholat untuk ${formattedCity}`;
+            headerCity.textContent = `Jadwal Sholat ${formattedCity}`;
             headerMonth.textContent = `Jadwal Sholat Bulan ${date.toLocaleString('id-ID', { month: 'long', year: 'numeric' })}`;
 
             let dateDisplay = formatDate(date);
@@ -169,7 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
             headerDate.textContent = dateDisplay;
 
             // Render Monthly
-            renderMonthlyRows(data, date);
+            renderMonthlyRows(data);
 
         } catch (error) {
             console.error('Error loading prayer times:', error);
@@ -197,15 +197,22 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
     }
 
-    function renderMonthlyRows(data, selectedDate) {
+    function renderMonthlyRows(data) {
         monthlyRows.innerHTML = '';
-        const selectedDay = String(selectedDate.getDate()).padStart(2, '0');
+        const today = new Date();
+        const todayDay = String(today.getDate()).padStart(2, '0');
+        const todayMonth = today.getMonth() + 1;
+        const todayYear = String(today.getFullYear());
 
         data.forEach(item => {
             const tr = document.createElement('tr');
 
-            // Highlight current date
-            if (item.date.gregorian.day === selectedDay) {
+            // Highlight ONLY if it matches today's date (Day, Month, Year)
+            const isToday = (item.date.gregorian.day === todayDay) &&
+                (Number(item.date.gregorian.month.number) === todayMonth) &&
+                (item.date.gregorian.year === todayYear);
+
+            if (isToday) {
                 tr.classList.add('table-primary');
             }
 
