@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const headerMonth = document.getElementById('headerMonth');
 
     // Table Elements
-    const singleDayRow = document.getElementById('singleDayRow');
+    const singleDayGrid = document.getElementById('singleDayGrid');
     const monthlyRows = document.getElementById('monthlyRows');
 
     // Ayah Elements
@@ -82,6 +82,11 @@ document.addEventListener('DOMContentLoaded', () => {
         loadPrayerTimes(selectedCity, today);
         loadRandomAyah();
         loadRandomDua();
+
+        console.log("Data provided by:");
+        console.log("- Aladhan API (Prayer Times, Hijri Date)");
+        console.log("- Al Quran Cloud (Ayah)");
+        console.log("- ipapi.co (Location)");
     }
 
 
@@ -104,7 +109,8 @@ document.addEventListener('DOMContentLoaded', () => {
             // if (!response.ok) throw new Error('IP API failed'); 
             const data = await response.json();
 
-            console.log("Detected IP data:", data);
+            // console.log("Detected IP data:", data); // Removed for privacy
+            console.log("Location data provided by ipapi.co"); // API Credits
 
             if (data.latitude && data.longitude) {
                 return {
@@ -174,41 +180,56 @@ document.addEventListener('DOMContentLoaded', () => {
             if (todayDataObj) {
                 // Get Hijri Date
                 const hijri = todayDataObj.date.hijri;
-                dateDisplay += ` / ${hijri.day} ${hijri.month.en} ${hijri.year} H`;
-                renderSingleRow(todayDataObj);
+                // Fix for mobile wrapping: Break on mobile, Slash on desktop
+                dateDisplay += `<span class="d-md-none"><br></span><span class="d-none d-md-inline"> / </span>${hijri.day} ${hijri.month.en} ${hijri.year} H`;
+                renderSingleGrid(todayDataObj);
             } else {
-                singleDayRow.innerHTML = '<tr><td colspan="8">Data tidak ditemukan untuk tanggal ini.</td></tr>';
+                singleDayGrid.innerHTML = '<div class="col-12 text-center">Data tidak ditemukan untuk tanggal ini.</div>';
             }
 
-            headerDate.textContent = dateDisplay;
+            headerDate.innerHTML = dateDisplay; // Use innerHTML to render distinct spans
 
             // Render Monthly
             renderMonthlyRows(data);
 
         } catch (error) {
             console.error('Error loading prayer times:', error);
-            singleDayRow.innerHTML = '<tr><td colspan="8">Gagal memuat data (API Error).</td></tr>';
+            singleDayGrid.innerHTML = '<div class="col-12 text-center text-danger">Gagal memuat data (API Error).</div>';
         }
     }
 
-    function renderSingleRow(item) {
+    function renderSingleGrid(item) {
         const t = item.timings;
         // Times format: "05:00 (WIB)". We want just "05:00".
         const clean = (timeStr) => timeStr.split(' ')[0];
         const dhuha = calculateDhuha(clean(t.Sunrise));
 
-        singleDayRow.innerHTML = `
-            <tr>
-                <td>${clean(t.Imsak)}</td>
-                <td>${clean(t.Fajr)}</td>
-                <td>${clean(t.Sunrise)}</td>
-                <td>${dhuha}</td>
-                <td>${clean(t.Dhuhr)}</td>
-                <td>${clean(t.Asr)}</td>
-                <td>${clean(t.Maghrib)}</td>
-                <td>${clean(t.Isha)}</td>
-            </tr>
-        `;
+        const times = [
+            { name: 'Imsyak', time: clean(t.Imsak) },
+            { name: 'Shubuh', time: clean(t.Fajr) },
+            { name: 'Terbit', time: clean(t.Sunrise) },
+            { name: 'Dhuha', time: dhuha },
+            { name: 'Dzuhur', time: clean(t.Dhuhr) },
+            { name: 'Ashr', time: clean(t.Asr) },
+            { name: 'Maghrib', time: clean(t.Maghrib) },
+            { name: 'Isya', time: clean(t.Isha) }
+        ];
+
+        let html = '';
+        times.forEach(timeObj => {
+            html += `
+                <div class="col-6 col-sm-4 col-md-3 col-lg-auto mb-2" style="min-width: 100px;">
+                    <div class="card h-100 border-0 shadow-sm bg-light">
+                        <div class="card-body p-2 text-center">
+                            <small class="text-uppercase text-muted fw-bold d-block mb-1" style="font-size: 0.75rem;">${timeObj.name}</small>
+                            <span class="h5 mb-0 fw-bold text-dark">${timeObj.time}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
+        singleDayGrid.innerHTML = html;
     }
 
     function renderMonthlyRows(data) {
@@ -319,9 +340,75 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function formatCityName(str) {
-        // "jakartapusat" -> "Jakarta Pusat"
-        // Separate common suffixes
-        let formatted = str.replace(/(pusat|barat|timur|selatan|utara|tengah|kota|kab|kepulauan)$/i, ' $1');
+        const lower = str.toLowerCase();
+
+        // Map of specific overrides for complex names that regex might miss or misformat
+        const overrides = {
+            'acehbaratdaya': 'Aceh Barat Daya',
+            'acehbarat': 'Aceh Barat',
+            'acehbesar': 'Aceh Besar',
+            'acehjaya': 'Aceh Jaya',
+            'acehselatan': 'Aceh Selatan',
+            'acehsingkil': 'Aceh Singkil',
+            'acehtamiang': 'Aceh Tamiang',
+            'acehtengah': 'Aceh Tengah',
+            'acehtenggara': 'Aceh Tenggara',
+            'acehtimur': 'Aceh Timur',
+            'acehutara': 'Aceh Utara',
+            // -- 
+            'bandarlampung': 'Bandar Lampung',
+            'pangkalpinang': 'Pangkal Pinang',
+            'tanjungpinang': 'Tanjung Pinang',
+            'tanjungbalai': 'Tanjung Balai',
+            'tebingtinggi': 'Tebing Tinggi',
+            'bukittinggi': 'Bukit Tinggi',
+            'lubuklinggau': 'Lubuk Linggau',
+            'padangpanjang': 'Padang Panjang',
+            'padangsidempuan': 'Padang Sidempuan',
+            'pematangsiantar': 'Pematang Siantar',
+            'payakumbuh': 'Payakumbuh',
+            'sawahlunto': 'Sawahlunto',
+            'solok': 'Solok',
+            'lhoseumawe': 'Lhokseumawe',
+            'subulussalam': 'Subulussalam',
+            'gunungsitoli': 'Gunungsitoli',
+            'kotamobagu': 'Kotamobagu',
+            'tidorekepulauan': 'Tidore Kepulauan',
+            'tomohon': 'Tomohon',
+            'baubau': 'Baubau',
+            'parepare': 'Parepare',
+            // --
+            'jakartabarat': 'Jakarta Barat',
+            'jakartapusat': 'Jakarta Pusat',
+            'jakartaselatan': 'Jakarta Selatan',
+            'jakartatimur': 'Jakarta Timur',
+            'jakartautara': 'Jakarta Utara',
+            // --
+            'kepulauansribu': 'Kepulauan Seribu',
+            'kepseribu': 'Kepulauan Seribu',
+            // --
+            'kabtimortengahselatan': 'Kabupaten Timor Tengah Selatan',
+            'kepsiautagulandangbiaro': 'Kepulauan Siau Tagulandang Biaro',
+            'alor': 'Alor',
+            'argamakmur': 'Arga Makmur'
+        };
+
+        if (overrides[lower]) {
+            return overrides[lower];
+        }
+
+        // Generic splitters for common Indonesian city patterns
+        // 1. Split common prefixes
+        let formatted = str.replace(/^(bandar|bukit|gunung|kota|kabupaten|pulau|tanjung|lubuk|padang|pematang|sungai|kuala|muara|rantau|tanah|ujung|kepulauan|bolaang)(.+)/i, '$1 $2');
+
+        // 2. Split common suffixes (if not already split by prefix rule)
+        formatted = formatted.replace(/(.+)(pusat|barat|timur|selatan|utara|tengah|kota|kab|kepulauan|jaya|besar|agung|karta|pura|tani|batu|kuala|hulu|hilir|siapiapi|dalam|luar|baru|lama|lor|kidul|wetan|kulon)$/i, '$1 $2');
+
+        // 3. Special handling for joined words that need splitting but assume single word structure
+        // This is tricky without a dictionary, but we can try some common ones
+
+        formatted = formatted.replace(/\s+/g, ' ').trim();
+
         return titleize(formatted);
     }
 
