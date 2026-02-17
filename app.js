@@ -29,6 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- State ---
     let cities = [];
+    let detectedCoords = null;
 
     // Embedded Dua List (Static & Reliable)
     const duas = [
@@ -58,15 +59,21 @@ document.addEventListener('DOMContentLoaded', () => {
         // but the user requested: "always set back to the user location, everytime user reloads"
 
         try {
-            const detectedCity = await detectUserLocation();
-            if (detectedCity) {
-                selectedCity = detectedCity;
-                // We update localStorage just so the 'submit' event has a baseline, 
-                // but we effectively ignore the *previous* localStorage value on init now.
+            const locationData = await detectUserLocation();
+            if (locationData && locationData.type === 'coords') {
+                detectedCoords = locationData;
+                selectedCity = 'detected';
+
+                // Add Detected Option
+                const option = document.createElement('option');
+                option.value = 'detected';
+                option.textContent = `Lokasi Terdeteksi (${locationData.city})`;
+                citySelect.insertBefore(option, citySelect.children[1]); // Insert after placeholder
+
                 localStorage.setItem('selectedCity', selectedCity);
             }
         } catch (e) {
-            console.log("Auto-detection failed, using default or localStorage fallback if desired (currently default).");
+            console.log("Auto-detection failed:", e);
         }
 
         // Set dropdown value
@@ -90,23 +97,23 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Functions ---
 
     // Auto-detect location
+
     async function detectUserLocation() {
         try {
             const response = await fetch('https://ipapi.co/json/');
-            // if (!response.ok) throw new Error('IP API failed'); // ipapi sometimes returns 429 but works on reload
+            // if (!response.ok) throw new Error('IP API failed'); 
             const data = await response.json();
-            const city = data.city ? data.city.toLowerCase().replace(/\s/g, '') : '';
-            console.log("Detected city:", city);
 
-            // 1. Exact Match
-            if (cities.includes(city)) return city;
+            console.log("Detected IP data:", data);
 
-            // 2. "Pusat" Suffix (e.g. Jakarta -> jakartapusat)
-            if (cities.includes(city + 'pusat')) return city + 'pusat';
-
-            // 3. Partial Match
-            const match = cities.find(c => c.includes(city));
-            if (match) return match;
+            if (data.latitude && data.longitude) {
+                return {
+                    type: 'coords',
+                    lat: data.latitude,
+                    lon: data.longitude,
+                    city: data.city || 'Detected Location'
+                };
+            }
 
             return null;
         } catch (error) {
@@ -134,12 +141,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 2. Load Prayer Times (Aladhan API)
     async function loadPrayerTimes(cityId, date) {
-        // Format city name for Aladhan API (jakartapusat -> Jakarta Pusat)
-        const formattedCity = formatCityName(cityId);
         const year = date.getFullYear();
         const month = date.getMonth() + 1;
+        let url = '';
+        let displayName = '';
 
-        const url = `https://api.aladhan.com/v1/calendarByCity/${year}/${month}?city=${encodeURIComponent(formattedCity)}&country=Indonesia&method=20`;
+        if (cityId === 'detected' && detectedCoords) {
+            url = `https://api.aladhan.com/v1/calendar/${year}/${month}?latitude=${detectedCoords.lat}&longitude=${detectedCoords.lon}&method=20`;
+            displayName = detectedCoords.city;
+        } else {
+            const formattedCity = formatCityName(cityId);
+            displayName = formattedCity;
+            url = `https://api.aladhan.com/v1/calendarByCity/${year}/${month}?city=${encodeURIComponent(formattedCity)}&country=Indonesia&method=20`;
+        }
 
         try {
             const response = await fetch(url);
@@ -152,7 +166,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const todayDataObj = data.find(item => item.date.gregorian.day === targetDay);
 
             // Render Header Basics
-            headerCity.textContent = `Jadwal Sholat ${formattedCity}`;
+            headerCity.textContent = `Jadwal Sholat ${displayName}`;
             headerMonth.textContent = `Jadwal Sholat Bulan ${date.toLocaleString('id-ID', { month: 'long', year: 'numeric' })}`;
 
             let dateDisplay = formatDate(date);
