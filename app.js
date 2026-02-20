@@ -180,12 +180,12 @@ document.addEventListener('DOMContentLoaded', () => {
         let displayName = '';
 
         if (cityId === 'detected' && detectedCoords) {
-            url = `https://api.aladhan.com/v1/calendar/${year}/${month}?latitude=${detectedCoords.lat}&longitude=${detectedCoords.lon}&method=20&tune=2,2,2,2,2,2,2,2`;
+            url = `https://api.aladhan.com/v1/calendar/${year}/${month}?latitude=${detectedCoords.lat}&longitude=${detectedCoords.lon}&method=20&tune=2,2,-2,2,2,2,2,2`;
             displayName = detectedCoords.city;
         } else {
             const formattedCity = formatCityName(cityId);
             displayName = formattedCity;
-            url = `https://api.aladhan.com/v1/calendarByCity/${year}/${month}?city=${encodeURIComponent(formattedCity)}&country=Indonesia&method=20&tune=2,2,2,2,2,2,2,2`;
+            url = `https://api.aladhan.com/v1/calendarByCity/${year}/${month}?city=${encodeURIComponent(formattedCity)}&country=Indonesia&method=20&tune=2,2,-2,2,2,2,2,2`;
         }
 
         try {
