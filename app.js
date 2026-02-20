@@ -11,6 +11,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const headerCity = document.getElementById('headerCity');
     const headerDate = document.getElementById('headerDate');
     const headerMonth = document.getElementById('headerMonth');
+    const countdownContainer = document.getElementById('countdownContainer');
+    const nextPrayerNameElem = document.getElementById('nextPrayerName');
+    const nextPrayerTimeElem = document.getElementById('nextPrayerTime');
 
     // Table Elements
     const singleDayGrid = document.getElementById('singleDayGrid');
@@ -32,6 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- State ---
     let cities = [];
     let detectedCoords = null;
+    let countdownInterval = null;
 
     // Embedded Dua List (Static & Reliable)
     const duas = [
@@ -205,9 +209,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 const hijri = todayDataObj.date.hijri;
                 // Fix for mobile wrapping: Break on mobile, Slash on desktop
                 dateDisplay += `<span class="d-md-none"><br></span><span class="d-none d-md-inline"> / </span>${hijri.day} ${hijri.month.en} ${hijri.year} H`;
-                renderSingleGrid(todayDataObj);
+                renderSingleGrid(todayDataObj, date);
             } else {
                 singleDayGrid.innerHTML = '<div class="col-12 text-center">Data tidak ditemukan untuk tanggal ini.</div>';
+                if (countdownInterval) clearInterval(countdownInterval);
+                document.getElementById('countdownContainer').classList.add('d-none');
             }
 
             headerDate.innerHTML = dateDisplay; // Use innerHTML to render distinct spans
@@ -221,11 +227,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function renderSingleGrid(item) {
+    function renderSingleGrid(item, viewDate) {
         const t = item.timings;
         // Times format: "05:00 (WIB)". We want just "05:00".
         const clean = (timeStr) => timeStr.split(' ')[0];
-        const dhuha = calculateDhuha(clean(t.Sunrise));
+        const dhuha = calculateDhuha(clean(t.Sunrise), viewDate);
 
         const times = [
             { name: 'Imsak', time: clean(t.Imsak) },
@@ -253,6 +259,71 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         singleDayGrid.innerHTML = html;
+        startCountdown(times, viewDate);
+    }
+
+    function startCountdown(times, viewDate) {
+        if (countdownInterval) clearInterval(countdownInterval);
+
+        // Hide if the selected view date is not today in local time
+        const now = new Date();
+        const isToday = viewDate.getDate() === now.getDate() &&
+            viewDate.getMonth() === now.getMonth() &&
+            viewDate.getFullYear() === now.getFullYear();
+
+        // If user is looking at a different date, we shouldn't show a live countdown to that date's prayer times
+        if (!isToday) {
+            countdownContainer.classList.add('d-none');
+            return;
+        }
+
+        countdownContainer.classList.remove('d-none');
+
+        function updateCountdown() {
+            const currentTime = new Date();
+            let nextPrayer = null;
+            let nextPrayerDate = null;
+
+            for (const timeObj of times) {
+                if (timeObj.time === '-') continue;
+                const [h, m] = timeObj.time.split(':').map(Number);
+                const prayerDate = new Date(viewDate.getTime());
+                prayerDate.setHours(h, m, 0, 0);
+
+                if (prayerDate > currentTime) {
+                    nextPrayer = timeObj.name;
+                    nextPrayerDate = prayerDate;
+                    break;
+                }
+            }
+
+            if (!nextPrayer) {
+                // All prayers for today have passed
+                nextPrayerTimeElem.textContent = "-";
+                nextPrayerNameElem.textContent = "Esok Hari";
+                return;
+            }
+
+            nextPrayerNameElem.textContent = nextPrayer;
+
+            const diffMs = nextPrayerDate - currentTime;
+            const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+            const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+            const diffSeconds = Math.floor((diffMs % (1000 * 60)) / 1000);
+
+            const hStr = String(diffHours).padStart(2, '0');
+            const mStr = String(diffMinutes).padStart(2, '0');
+            const sStr = String(diffSeconds).padStart(2, '0');
+
+            if (diffHours > 0) {
+                nextPrayerTimeElem.textContent = `- ${hStr}:${mStr}:${sStr}`;
+            } else {
+                nextPrayerTimeElem.textContent = `- ${mStr}:${sStr}`;
+            }
+        }
+
+        updateCountdown();
+        countdownInterval = setInterval(updateCountdown, 1000);
     }
 
     function renderMonthlyRows(data) {
@@ -275,9 +346,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const dateStr = item.date.gregorian.day + ' ' + item.date.gregorian.month.en.substr(0, 3);
+            const dateObj = new Date(item.date.gregorian.year, item.date.gregorian.month.number - 1, item.date.gregorian.day);
             const t = item.timings;
             const clean = (timeStr) => timeStr.split(' ')[0];
-            const dhuha = calculateDhuha(clean(t.Sunrise));
+            const dhuha = calculateDhuha(clean(t.Sunrise), dateObj);
 
             tr.innerHTML = `
                 <td>${dateStr}</td>
@@ -350,10 +422,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Helpers
-    function calculateDhuha(sunriseTime) {
+    function calculateDhuha(sunriseTime, baseDate = new Date()) {
         if (!sunriseTime) return '-';
         const [hours, minutes] = sunriseTime.split(':').map(Number);
-        const date = new Date();
+        const date = new Date(baseDate.getTime());
         date.setHours(hours, minutes, 0, 0);
         date.setMinutes(date.getMinutes() + 20); // Dhuha ~20 mins after sunrise
 

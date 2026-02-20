@@ -76,7 +76,13 @@
         <div id="prayerTimesContainer">
             <div class="div text-center mt-4">
                 <h4 id="headerCity"></h4>
-                <h4 id="headerDate"></h4>
+                <h4 id="headerDate" class="mb-3"></h4>
+                <div id="countdownContainer" class="d-none">
+                    <small class="text-muted fw-bold text-uppercase">Menuju <span id="nextPrayerName"
+                            class="text-success"></span></small>
+                    <h2 id="nextPrayerTime" class="fw-bold mb-0 text-success"
+                        style="font-variant-numeric: tabular-nums;">--:--:--</h2>
+                </div>
             </div>
 
             <!-- Single Day View (Grid) -->
