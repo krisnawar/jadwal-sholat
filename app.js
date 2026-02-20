@@ -96,7 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log("Data provided by:");
         console.log("- Aladhan API (Prayer Times, Hijri Date)");
         console.log("- Al Quran Cloud (Ayah)");
-        console.log("- ipapi.co (Location)");
+        console.log("- Device Geolocation API");
     }
 
 
@@ -131,28 +131,49 @@ document.addEventListener('DOMContentLoaded', () => {
     // Auto-detect location
 
     async function detectUserLocation() {
-        try {
-            const response = await fetch('https://ipapi.co/json/');
-            // if (!response.ok) throw new Error('IP API failed'); 
-            const data = await response.json();
-
-            // console.log("Detected IP data:", data); // Removed for privacy
-            console.log("Location data provided by ipapi.co"); // API Credits
-
-            if (data.latitude && data.longitude) {
-                return {
-                    type: 'coords',
-                    lat: data.latitude,
-                    lon: data.longitude,
-                    city: data.city || 'Detected Location'
-                };
-            }
-
-            return null;
-        } catch (error) {
-            console.error('Location detection error:', error);
+        if (!navigator.geolocation) {
+            console.warn('Geolocation is not supported by your browser');
             return null;
         }
+
+        try {
+            if (navigator.permissions) {
+                const permission = await navigator.permissions.query({ name: 'geolocation' });
+                if (permission.state === 'prompt') {
+                    const wantLocation = confirm("Izinkan situs ini mengakses lokasi perangkat Anda untuk jadwal sholat yang lebih akurat?");
+                    if (!wantLocation) return null;
+                } else if (permission.state === 'denied') {
+                    console.warn('Geolocation permission denied by user.');
+                    return null;
+                }
+            }
+        } catch (e) {
+            console.log("Permissions API not supported or error", e);
+        }
+
+        return new Promise((resolve) => {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    console.log("Location data provided by Device Geolocation");
+                    console.log("Detected coordinates:", position.coords.latitude, position.coords.longitude);
+                    resolve({
+                        type: 'coords',
+                        lat: position.coords.latitude,
+                        lon: position.coords.longitude,
+                        city: 'Lokasi Anda'
+                    });
+                },
+                (error) => {
+                    console.warn('Geolocation error:', error.message);
+                    resolve(null);
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 5000,
+                    maximumAge: 0
+                }
+            );
+        });
     }
 
     // 1. Load Cities
