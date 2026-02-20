@@ -176,12 +176,12 @@ document.addEventListener('DOMContentLoaded', () => {
         let displayName = '';
 
         if (cityId === 'detected' && detectedCoords) {
-            url = `https://api.aladhan.com/v1/calendar/${year}/${month}?latitude=${detectedCoords.lat}&longitude=${detectedCoords.lon}&method=20`;
+            url = `https://api.aladhan.com/v1/calendar/${year}/${month}?latitude=${detectedCoords.lat}&longitude=${detectedCoords.lon}&method=20&tune=2,2,2,2,2,2,2,2`;
             displayName = detectedCoords.city;
         } else {
             const formattedCity = formatCityName(cityId);
             displayName = formattedCity;
-            url = `https://api.aladhan.com/v1/calendarByCity/${year}/${month}?city=${encodeURIComponent(formattedCity)}&country=Indonesia&method=20`;
+            url = `https://api.aladhan.com/v1/calendarByCity/${year}/${month}?city=${encodeURIComponent(formattedCity)}&country=Indonesia&method=20&tune=2,2,2,2,2,2,2,2`;
         }
 
         try {
@@ -233,7 +233,7 @@ document.addEventListener('DOMContentLoaded', () => {
             { name: 'Terbit', time: clean(t.Sunrise) },
             { name: 'Dhuha', time: dhuha },
             { name: 'Dzuhur', time: clean(t.Dhuhr) },
-            { name: 'Ashr', time: clean(t.Asr) },
+            { name: 'Ashar', time: clean(t.Asr) },
             { name: 'Maghrib', time: clean(t.Maghrib) },
             { name: 'Isya', time: clean(t.Isha) }
         ];
