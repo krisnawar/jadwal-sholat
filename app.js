@@ -247,11 +247,11 @@ document.addEventListener('DOMContentLoaded', () => {
         let html = '';
         times.forEach(timeObj => {
             html += `
-                <div class="col-6 col-sm-4 col-md-3 col-lg-auto mb-2" style="min-width: 100px;">
-                    <div class="card h-100 border-0 shadow-sm bg-body-tertiary">
-                        <div class="card-body p-2 text-center">
-                            <small class="text-uppercase text-muted fw-bold d-block mb-1" style="font-size: 0.75rem;">${timeObj.name}</small>
-                            <span class="h5 mb-0 fw-bold text-body">${timeObj.time}</span>
+                <div class="col-6 col-sm-4 col-md-3 col-lg-auto mb-1 mb-md-2" style="min-width: 100px;">
+                    <div class="card h-100 border-0 shadow-sm bg-body-tertiary prayer-card" data-prayer="${timeObj.name}">
+                        <div class="card-body p-1 p-md-2 text-center">
+                            <small class="text-uppercase text-muted fw-bold d-block mb-0 mb-md-1 prayer-name" style="font-size: 0.75rem;">${timeObj.name}</small>
+                            <span class="h5 mb-0 fw-bold text-body prayer-time">${timeObj.time}</span>
                         </div>
                     </div>
                 </div>
@@ -301,10 +301,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 // All prayers for today have passed
                 nextPrayerTimeElem.textContent = "-";
                 nextPrayerNameElem.textContent = "Esok Hari";
+                document.querySelectorAll('.prayer-card').forEach(card => card.classList.remove('highlight-next-prayer'));
                 return;
             }
 
             nextPrayerNameElem.textContent = nextPrayer;
+
+            document.querySelectorAll('.prayer-card').forEach(card => {
+                if (card.getAttribute('data-prayer') === nextPrayer) {
+                    card.classList.add('highlight-next-prayer');
+                } else {
+                    card.classList.remove('highlight-next-prayer');
+                }
+            });
 
             const diffMs = nextPrayerDate - currentTime;
             const diffHours = Math.floor(diffMs / (1000 * 60 * 60));

@@ -36,7 +36,8 @@
 
 
     <!-- Sticky Navbar -->
-    <nav class="navbar sticky-top navbar-expand navbar-light bg-body-tertiary shadow-sm mb-4" style="z-index: 1030;">
+    <nav class="navbar sticky-top navbar-expand navbar-light bg-body-tertiary shadow-sm mb-2 mb-md-4"
+        style="z-index: 1030;">
         <div class="container-fluid container">
             <a class="navbar-brand fw-bold mb-0 h1" href="#">
                 <i class="bi bi-clock-history me-2 text-success"></i>Jadwal Sholat Indonesia
@@ -74,20 +75,20 @@
 
         <!-- Prayer Times Section -->
         <div id="prayerTimesContainer">
-            <div class="div text-center mt-4">
-                <h4 id="headerCity"></h4>
-                <h4 id="headerDate" class="mb-3"></h4>
+            <div class="div text-center mt-2 mt-md-4">
+                <h4 id="headerCity" class="prayer-header"></h4>
+                <h4 id="headerDate" class="mb-2 mb-md-3 prayer-header"></h4>
                 <div id="countdownContainer" class="d-none">
-                    <small class="text-muted fw-bold text-uppercase">Menuju <span id="nextPrayerName"
+                    <small class="text-muted fw-bold text-uppercase countdown-label">Menuju <span id="nextPrayerName"
                             class="text-success"></span></small>
-                    <h2 id="nextPrayerTime" class="fw-bold mb-0 text-success"
+                    <h2 id="nextPrayerTime" class="fw-bold mb-0 text-success countdown-time"
                         style="font-variant-numeric: tabular-nums;">--:--:--</h2>
                 </div>
             </div>
 
             <!-- Single Day View (Grid) -->
-            <div class="container mt-4">
-                <div id="singleDayGrid" class="row justify-content-center g-2">
+            <div class="container mt-2 mt-md-4">
+                <div id="singleDayGrid" class="row justify-content-center g-1 g-md-2">
                     <!-- Populated by JS -->
                 </div>
             </div>

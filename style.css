@@ -17,6 +17,42 @@
     margin: 20px 0;
 }
 
+/* Prayer Card Highlight */
+.prayer-card {
+    transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.2s ease;
+    border: 1px solid transparent !important;
+    /* reserve border space */
+}
+
+.highlight-next-prayer {
+    background-color: var(--bs-success-bg-subtle) !important;
+    border-color: var(--bs-success-border-subtle) !important;
+    transform: scale(1.03);
+}
+
 [data-bs-theme="dark"] .box {
     background: var(--bs-tertiary-bg);
+}
+
+/* Mobile Optimizations */
+@media (max-width: 767.98px) {
+    .prayer-header {
+        font-size: 1.15rem;
+    }
+
+    .countdown-label {
+        font-size: 0.7rem;
+    }
+
+    .countdown-time {
+        font-size: 1.5rem;
+    }
+
+    .prayer-name {
+        font-size: 0.65rem !important;
+    }
+
+    .prayer-time {
+        font-size: 1.1rem !important;
+    }
 }
