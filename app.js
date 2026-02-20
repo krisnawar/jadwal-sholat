@@ -4,6 +4,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const citySelect = document.getElementById('citySelect');
     const dateInput = document.getElementById('dateInput');
     const searchForm = document.getElementById('searchForm');
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
 
     // Header Elements
     const headerCity = document.getElementById('headerCity');
@@ -47,6 +49,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const today = new Date();
     dateInput.value = today.toISOString().split('T')[0];
     let selectedCity = 'jakartapusat';
+
+    // --- Theme Init ---
+    let currentTheme = localStorage.getItem('theme') || 'light';
+    setTheme(currentTheme);
 
     // --- Init ---
     init();
@@ -99,7 +105,24 @@ document.addEventListener('DOMContentLoaded', () => {
         loadPrayerTimes(selectedCity, selectedDate);
     });
 
+    themeToggle.addEventListener('click', () => {
+        currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+        setTheme(currentTheme);
+        localStorage.setItem('theme', currentTheme);
+    });
+
     // --- Functions ---
+
+    function setTheme(theme) {
+        document.documentElement.setAttribute('data-bs-theme', theme);
+        if (theme === 'dark') {
+            themeIcon.classList.remove('bi-moon-fill');
+            themeIcon.classList.add('bi-sun-fill');
+        } else {
+            themeIcon.classList.remove('bi-sun-fill');
+            themeIcon.classList.add('bi-moon-fill');
+        }
+    }
 
     // Auto-detect location
 
@@ -219,10 +242,10 @@ document.addEventListener('DOMContentLoaded', () => {
         times.forEach(timeObj => {
             html += `
                 <div class="col-6 col-sm-4 col-md-3 col-lg-auto mb-2" style="min-width: 100px;">
-                    <div class="card h-100 border-0 shadow-sm bg-light">
+                    <div class="card h-100 border-0 shadow-sm bg-body-tertiary">
                         <div class="card-body p-2 text-center">
                             <small class="text-uppercase text-muted fw-bold d-block mb-1" style="font-size: 0.75rem;">${timeObj.name}</small>
-                            <span class="h5 mb-0 fw-bold text-dark">${timeObj.time}</span>
+                            <span class="h5 mb-0 fw-bold text-body">${timeObj.time}</span>
                         </div>
                     </div>
                 </div>
