@@ -8,7 +8,7 @@
     <meta name="description"
         content="Jadwal Sholat akurat seluruh kota di Indonesia, Pilihan ayat Al Quran dengan terjemahan dan audio, serta kumpulan doa harian. Cek waktu sholat hari ini dengan mudah.">
     <meta name="keywords"
-        content="jadwal sholat, waktu sholat, imsyakiyah, adzan, quran online, baca quran, doa harian, jadwal puasa, indonesia, jakarta, bandung, surabaya">
+        content="jadwal sholat, waktu sholat, imsakiyah, adzan, quran online, baca quran, doa harian, jadwal puasa, indonesia, jakarta, bandung, surabaya">
     <meta name="author" content="Krisna Wardhana">
     <meta name="robots" content="index, follow">
 
@@ -35,24 +35,41 @@
 
 
 
-    <div class="container mb-5">
-        <!-- Theme Toggle & City/Date Selection -->
-        <div class="d-flex justify-content-between align-items-center mt-3">
-            <div>
-                <button class="btn btn-outline-secondary btn-sm rounded-circle" id="themeToggle"
+    <!-- Sticky Navbar -->
+    <nav class="navbar sticky-top navbar-expand navbar-light bg-body-tertiary shadow-sm mb-4" style="z-index: 1030;">
+        <div class="container-fluid container">
+            <a class="navbar-brand fw-bold mb-0 h1" href="#">
+                <i class="bi bi-clock-history me-2 text-success"></i>Jadwal Sholat Indonesia
+            </a>
+            <div class="d-flex align-items-center">
+                <button class="btn btn-outline-secondary btn-sm rounded-circle shadow-sm" id="themeToggle"
                     aria-label="Toggle Dark Mode">
                     <i class="bi bi-moon-fill" id="themeIcon"></i>
                 </button>
             </div>
-            <form class="d-flex" id="searchForm">
-                <select name="city" id="citySelect" class="form-select form-select-sm me-2 my-auto" required>
-                    <option value="" selected disabled hidden>Pilih Kota</option>
-                    <!-- Options populated by JS -->
-                </select>
-                <input type="date" class="form-control form-control-sm me-2 my-auto" id="dateInput" name="date"
-                    required>
-                <button class="btn btn-outline-success" type="submit">Submit</button>
-            </form>
+        </div>
+    </nav>
+
+    <div class="container mb-5">
+        <!-- City/Date Selection Form -->
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-auto">
+                <form class="row g-2 m-0 justify-content-md-center align-items-center" id="searchForm">
+                    <div class="col-12 col-sm-auto">
+                        <select name="city" id="citySelect" class="form-select form-select-sm w-100" required>
+                            <option value="" selected disabled hidden>Pilih Kota</option>
+                            <!-- Options populated by JS -->
+                        </select>
+                    </div>
+                    <div class="col-8 col-sm-auto">
+                        <input type="date" class="form-control form-control-sm w-100 h-100" id="dateInput" name="date"
+                            required>
+                    </div>
+                    <div class="col-4 col-sm-auto">
+                        <button class="btn btn-outline-success btn-sm w-100 h-100" type="submit">Submit</button>
+                    </div>
+                </form>
+            </div>
         </div>
 
         <!-- Prayer Times Section -->
@@ -79,7 +96,7 @@
                         <thead class="sticky-top bg-body">
                             <tr>
                                 <th>Tanggal</th>
-                                <th>Imsyak</th>
+                                <th>Imsak</th>
                                 <th>Shubuh</th>
                                 <th>Terbit</th>
                                 <th>Dhuha</th>

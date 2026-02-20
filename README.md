@@ -4,7 +4,7 @@ A beautifully designed web application that provides accurate daily prayer times
 
 ## Features
 
-- **Accurate Prayer Times**: Displays Imsyak, Shubuh, Terbit (Sunrise), Dhuha, Dzuhur, Ashr, Maghrib, and Isya timings.
+- **Accurate Prayer Times**: Displays Imsak, Shubuh, Terbit (Sunrise), Dhuha, Dzuhur, Ashr, Maghrib, and Isya timings.
 - **Hijri Calendar Integration**: Shows the current Hijri date alongside the Gregorian date.
 - **Automatic Location Detection**: Tries to detect your city automatically using IP Geolocation.
 - **City Selection**: Choose from a wide range of cities in Indonesia via the dropdown menu.

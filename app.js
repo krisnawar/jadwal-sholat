@@ -228,7 +228,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const dhuha = calculateDhuha(clean(t.Sunrise));
 
         const times = [
-            { name: 'Imsyak', time: clean(t.Imsak) },
+            { name: 'Imsak', time: clean(t.Imsak) },
             { name: 'Shubuh', time: clean(t.Fajr) },
             { name: 'Terbit', time: clean(t.Sunrise) },
             { name: 'Dhuha', time: dhuha },
